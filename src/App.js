@@ -22,26 +22,41 @@ const Card = styled.div`
   padding: 24px 24px;
   box-shadow: 0px 10px 16px rgba(0, 0, 0, 0.2);
   background-color: #fff;
+  position: relative;
 `
-const Item = styled.div`
-
+const Item = styled.p`
+margin: 0;
+padding: 8px 16px;
+width: 350px;
+box-sizing: border-box;
+`;
+const ItemDelete = styled.button`
+  position: absolute;
+  bottom: 8px;
+  right: 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  background-color: tomato;
+  border: none;
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
 `
-// function Item(props) {
 
-//   return (
-//     <>
-//       <h3>{props.title}</h3> 
-//     </>
-//   )
-// }
 
 function List(props) {
-
   return (
     <div style={{
-      height: '50px',
+      position: 'relative',
     }}>
-      <h3>{props.title}</h3>
+      <Item>▪️{props.title}</Item>
+      <ItemDelete onClick={e => {
+        props.onDelete(props.title);
+      }}>
+          삭제하기
+      </ItemDelete>
     </div>
   )
 }
@@ -66,30 +81,54 @@ function App() {
             color: '#909090'
           }}>{new Date().toLocaleDateString()}</p>
         </header>
-        {data.map(x => <List title={x}/>)}
-        <form onSubmit={e => {
-          e.preventDefault();
-          setData([...data, e.target[0].value])
+        <div style={{
+          margin: '8px 0',
+          height: '280px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0',
+          overflow: 'scroll',
+        }}>
+        {data.map(x => {
+          return ( 
+            <List 
+              title={x}
+              onDelete={item => {
+                let copy = data.filter(x => x !== item);
+                setData(copy);
+              }}
+            />
+          ) 
+        })}
+        </div>
+        <form 
+          style={{
+            bottom: '24px',
+            display: 'flex',
+            gap: '4px',
+          }}
+          onSubmit={e => {
+            e.preventDefault();
+            setData([...data, e.target[0].value])
         }}>
           <input 
             type="text" 
             placeholder="할 일을 입력해주세요."
             style={{
-              bottom: '0',
-            
               padding: '4px 8px',
-              bottom: '0px',
               border: "none",
               backgroundColor: "#FFEBD8",
+              flexGrow: '1',
           }}/>
           <button 
             type='submit'
             style={{
-              padding: '4px 8px',
+              padding: '8px 16px',
               border: 'none',
               borderRadius: '4px',
               backgroundColor: 'tomato',
               color: '#fff',
+              cursor: 'pointer',
             }}
           >등록!</button>
         </form>
