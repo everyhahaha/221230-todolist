@@ -25,15 +25,14 @@ const Card = styled.div`
   position: relative;
 `
 const Item = styled.p`
-margin: 0;
-padding: 8px 16px;
-width: 350px;
-box-sizing: border-box;
-`;
-const ItemDelete = styled.button`
-  position: absolute;
-  bottom: 8px;
-  right: 0;
+  margin: 0;
+  padding: 4px 12px;
+  width: 350px;
+  box-sizing: border-box;
+`
+const ItemButton = styled.button`
+  width: 3.2rem;
+  margin: 4px 0;
   padding: 4px 8px;
   border-radius: 4px;
   color: white;
@@ -47,19 +46,52 @@ const ItemDelete = styled.button`
 
 
 function List(props) {
+  let [editMode, setEditMode] = useState(false);
+  const [newWord, setNewWord] = useState(null);
+  const [oldWord, setOldWord] = useState(null);
+
   return (
     <div style={{
-      position: 'relative',
+      display: 'flex',
+      justifyContent: 'space-between',
     }}>
-      <Item>▪️{props.title}</Item>
-      <ItemDelete onClick={e => {
-        props.onDelete(props.title);
-      }}>
-          삭제하기
-      </ItemDelete>
+      {editMode ? 
+        <input 
+          placeholder={oldWord}
+          onChange={e => {
+            setNewWord(e.target.value)
+        }}></input> : <Item>{props.title}</Item>}
+        <div style={{
+          display: 'flex',
+          gap: '4px',
+        }}>
+          {!editMode? (
+            <ItemButton 
+              onClick={() => {
+                setOldWord(props.title);
+                setEditMode(!editMode);
+              }}> 편집
+            </ItemButton> 
+          ) : (
+            <ItemButton 
+              onClick={() => {
+                props.onEdit(newWord);
+                setEditMode(!editMode);
+              }}>
+                저장
+            </ItemButton>
+          )}
+          <ItemButton 
+            onClick={() => {
+              props.onDelete(props.title);
+          }}>
+            삭제
+          </ItemButton>
+        </div>
     </div>
   )
 }
+/** 만약 할일이 중복된다면 같이 삭제되어 버리는 오류 발생 */
 
 function App() {
   const [data, setData] = useState([]);
@@ -89,14 +121,21 @@ function App() {
           gap: '0',
           overflow: 'scroll',
         }}>
-        {data.map(x => {
+        {data.map((x, i )=> {
           return ( 
             <List 
               title={x}
-              onDelete={item => {
-                let copy = data.filter(x => x !== item);
+              onDelete={listItem => {
+                let copy = data.filter(x => x !== listItem);
                 setData(copy);
               }}
+              onEdit={(newWord) => {
+                let copy = data;
+                copy[i] = newWord;
+                setData(copy);
+                console.log(data);
+              }}
+              data={data}
             />
           ) 
         })}
@@ -109,7 +148,7 @@ function App() {
           }}
           onSubmit={e => {
             e.preventDefault();
-            setData([...data, e.target[0].value])
+            setData([...data, e.target[0].value]);
         }}>
           <input 
             type="text" 
